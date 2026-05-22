@@ -1,0 +1,33 @@
+<article class="image-card" (click)="onCardClick()">
+  <div class="card-image-wrapper">
+    <img [src]="imgInfo.imagePath" [alt]="imgInfo.name" loading="lazy">
+    
+    <div class="card-actions-wrapper" (click)="$event.stopPropagation()">
+      <button class="btn-menu-trigger" (click)="toggleMenu()">⋮</button>
+      
+      @if (isMenuOpen) {
+        <ul class="actions-dropdown">
+            @if(!action) {
+                <li (click)="onSelectAction()">Выбрать</li>
+                <li class="delete-item" (click)="onDeleteAction()">Удалить</li>                
+            } @else {
+                <li (click)="onDellSelectAction()">Отмена</li>
+            }
+
+        </ul>
+      }
+    </div>
+
+    @if(imgInfo.createdAt !== imgInfo.updatedAt) {
+      <span class="edited-badge">Обновлено {{ imgInfo.updatedAt | date:'dd.MM.yyyy, HH:mm' }}</span>
+    }
+  </div>
+  
+  <div class="card-content">
+    <h3 class="card-title">{{ imgInfo.name }}</h3>
+    <p class="card-description">{{ imgInfo.description || 'Нет описания...' }}</p>
+    <div class="card-footer">
+      <span class="card-date">{{ imgInfo.createdAt | date:'dd.MM.yyyy, HH:mm' }}</span>
+    </div>
+  </div>
+</article>

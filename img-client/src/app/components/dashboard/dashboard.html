@@ -1,0 +1,183 @@
+<div class="dashboard-layout">
+  <main class="gallery-section">
+    <div class="info-box">
+        <h2 class="section-title">Ваша галерея <span>({{ allImg.length }})</span></h2>
+        @if (action) {
+            <div class="dell-box">
+                <button  type="button" class="btn-dell-trigger" (click)="dellImegsAll()">удалить</button>
+                <h2 class="section-title">Вы выбрали: <span>({{ listId.length }})</span></h2>
+            </div>
+        }
+    </div>
+
+
+    
+    <div class="gallery-grid">
+      @for (element of allImg; track element._id) {
+        <app-image-card 
+        [imgInfo]="element" 
+        [listId]="listId"
+        (cardClick)="openModal($event)"
+        (deleteClick)="loadImages()"
+        (selectAction)="selectAction($event)"
+        (dellSelectAction)="dellSelectAction($event)">
+        </app-image-card>
+      } @empty {
+        <div class="empty-state">
+          <div class="empty-icon">🖼️</div>
+          <h3>Галерея пока пуста</h3>
+          <p>Загрузите свое первое изображение с помощью панели справа.</p>
+        </div>
+      }
+    </div>
+  </main>
+
+  <aside class="upload-sidebar">
+    <div class="sidebar-sticky">
+      <h3>Новая публикация</h3>
+      <p class="sidebar-subtitle">Заполните данные для создания карточки</p>
+
+      <form [formGroup]="imgForm" (ngSubmit)="onUpload()">
+        <div class="form-group">
+          <label for="name">Название</label>
+          <input id="name" type="text" formControlName="name" placeholder="Придумайте название...">
+        </div>
+
+        <div class="form-group">
+          <label for="description">Описание</label>
+          <textarea id="description" formControlName="description" rows="4" placeholder="Добавьте описание деталей..."></textarea>
+        </div>
+
+        <div class="file-upload-zone" [class.has-file]="selectedFile">
+          <input 
+            type="file" 
+            #fileInput 
+            (change)="onFileSelected($event)" 
+            accept="image/*" 
+            style="display: none;"
+          >
+          
+          @if (!imagePreview) {
+            <div class="upload-placeholder" (click)="fileInput.click()">
+              <span class="upload-icon">📂</span>
+              <span class="upload-text">Кликните, чтобы выбрать фото</span>
+            </div>
+          }
+
+          @if (imagePreview) {
+            <div class="upload-preview-wrapper" (click)="fileInput.click()">
+              <img [src]="imagePreview" alt="Превью" class="sidebar-img-preview">
+              <button class="preview-overlay">
+                <span>Изменить фото</span>
+              </button>
+            </div>
+          }
+        </div>
+        
+        @if (selectedFile) {
+          <div class="file-info-badge">
+            <span class="file-name">{{ selectedFile.name }}</span>
+          </div>
+        }
+
+        <button type="submit" [disabled]="imgForm.invalid || !selectedFile" class="btn-submit">
+          <span>Опубликовать на стену</span>
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  @if (selectedCard) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <form [formGroup]="updateImgForm" (ngSubmit)="$event.preventDefault()">
+        <div class="modal-container" (click)="$event.stopPropagation()">
+            
+            <button type="button" class="modal-close" (click)="closeModal()">&times;</button>
+            
+            <div class="modal-body">
+              <div class="modal-image-panel">
+                  <img [src]="selectedCard.imagePath" [alt]="selectedCard.name">
+              </div>
+              
+              <div class="modal-info-panel">
+                  <div class="modal-header-info">
+                      @if (!isUpdate) {
+                        <h2>{{ selectedCard.name }}</h2>
+                      } @else {
+                        <div class="form-group">
+                          <label for="edit-name">Название</label>
+                          <input id="edit-name" type="text" formControlName="name" class="form-input-edit">
+                        </div>
+                      }
+                      <span class="modal-id">ID поста: {{ selectedCard._id }}</span>
+                  </div>
+                  
+                  <div class="modal-description-box">
+                      <h3>Описание:</h3>
+                      @if (!isUpdate) {
+                        <p>{{ selectedCard.description || 'Описание отсутствует.' }}</p>
+                      } @else {
+                        <div class="form-group">
+                          <textarea id="edit-description" formControlName="description" rows="4" class="form-textarea-edit"></textarea>
+                        </div>
+                      }
+                  </div>
+                  @if (isUpdate) {
+                    <div class="file-upload-zone">
+                        <input 
+                            type="file" 
+                            #fileInput 
+                            (change)="onFileUpdate($event)" 
+                            accept="image/*" 
+                            style="display: none;"
+                        >
+                        
+                        @if (!updateImagePreview) {
+                            <div class="upload-placeholder" (click)="fileInput.click()">
+                            <span class="upload-icon">📂</span>
+                            <span class="upload-text">Кликните, чтобы выбрать фото</span>
+                            </div>
+                        }
+
+                        @if (updateImagePreview) {
+                            <div class="upload-preview-wrapper" (click)="fileInput.click()">
+                            <img [src]="updateImagePreview" alt="Превью" class="sidebar-img-preview">
+                            <div class="preview-overlay">
+                                <span>Изменить фото</span>
+                            </div>
+                            </div>
+                        }
+                    </div>
+                  }
+               
+                  <div class="modal-actions-box">
+                    @if (!isUpdate) {
+                      <button type="button" class="btn-edit-trigger" (click)="openUpdateStart()">Изменить текст</button>
+                    } @else {
+                      <button type="button" class="btn-dell-trigger" (click)="dellImg()">удалить</button>
+                      <button type="button" class="btn-save-trigger" [disabled]="updateImgForm.invalid" (click)="saveUpdate()">Сохранить</button>
+                    }
+                  </div>     
+
+                  <div class="modal-meta-box">
+                    <div class="meta-row">
+                        <span>Дата создания:</span>
+                        <strong>{{ selectedCard.createdAt | date:'dd.MM.yyyy, HH:mm' }}</strong>
+                    </div>
+                    
+                    @if (selectedCard.createdAt !== selectedCard.updatedAt) {
+                        <div class="meta-row edited">
+                          <span>Последнее изменение:</span>
+                          <strong>{{ selectedCard.updatedAt | date:'dd.MM.yyyy, HH:mm' }}</strong>
+                        </div>
+                    }
+                  </div>
+              </div>
+            </div>
+
+        </div>
+      </form>
+    </div>
+  }
+
+</div>

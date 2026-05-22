@@ -1,0 +1,128 @@
+$bg-header: #ffffff;
+$text-dark: #0f172a;
+$text-muted: #64748b;
+$border-color: #e2e8f0;
+$primary-color: #3b82f6; // Акцентный синий
+$transition: all 0.2s ease-in-out;
+
+.main-header {
+  background: $bg-header;
+  border-bottom: 1px solid $border-color;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100; // Чтобы хедер всегда был поверх галереи и модалок
+  height: 64px;
+  display: flex;
+  align-items: center;
+
+  .header-container {
+    width: 100%;
+    //max-width: 1440px;
+    margin: 0 20px;
+    padding: 0 5px;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+  }
+
+  // Стили логотипа
+  .header-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+
+    .logo-icon {
+      font-size: 24px;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      color: $text-dark;
+      margin: 0;
+      
+      span {
+        color: $primary-color; // Подсветка части логотипа
+      }
+    }
+  }
+
+  // Правая часть
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  // Профиль пользователя
+  .user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-right: 16px;
+    border-right: 1px solid $border-color;
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: #f1f5f9;
+      color: $primary-color;
+      border: 1px solid #d9e6fa;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .user-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: $text-dark;
+    }
+  }
+
+  // Кнопка выхода
+  .btn-logout {
+    background: transparent;
+    border: 1px solid transparent;
+    color: $text-muted;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: $transition;
+
+    &:hover {
+      background: #fef2f2;
+      color: #ef4444;
+      border-color: #fee2e2;
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
+  }
+}
+
+// Простая адаптивность
+@media (max-width: 640px) {
+  .main-header .user-name,
+  .main-header .logout-text {
+    display: none; // Скрываем тексты на мобилках, оставляем аватарку и иконку двери
+  }
+  .main-header .user-profile {
+    border-right: none;
+    padding-right: 0;
+  }
+}

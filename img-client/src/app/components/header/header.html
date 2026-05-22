@@ -1,0 +1,19 @@
+<header class="main-header">
+  <div class="header-container">
+
+    <div class="header-actions">
+      <div class="user-profile">
+        <div class="user-avatar">
+          {{ userName.charAt(0).toUpperCase() }}
+        </div>
+        <span class="user-name">{{ userName ? userName.charAt(0).toUpperCase() : '' }}</span>
+      </div>
+
+      <button type="button" class="btn-logout" (click)="onLogout()">
+        <span class="logout-icon">🚪</span>
+        <span class="logout-text">Выйти</span>
+      </button>
+    </div>
+
+  </div>
+</header>
