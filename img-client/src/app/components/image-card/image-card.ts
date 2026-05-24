@@ -14,9 +14,9 @@ export class ImageCard implements OnChanges{
   @Input() imgInfo!: AllUserIngDto;
   @Input() listId: string[] =[];
   @Output() cardClick = new EventEmitter<AllUserIngDto>();
-  @Output() deleteClick = new EventEmitter<void>(); 
-  @Output() selectAction = new EventEmitter<string>(); 
-  @Output() dellSelectAction = new EventEmitter<string>(); 
+  @Output() deleteClick = new EventEmitter<void>();
+  @Output() selectAction = new EventEmitter<string>();
+  @Output() dellSelectAction = new EventEmitter<string>();
   isMenuOpen = false;
   action: boolean = false;
 
@@ -59,7 +59,7 @@ export class ImageCard implements OnChanges{
   onSelectAction(): void {
     this.isMenuOpen = false;
     this.selectAction.emit(this.imgInfo._id)
-    //this.onCardClick(); 
+    //this.onCardClick();
   }
 
   onDeleteAction(): void {
@@ -68,7 +68,7 @@ export class ImageCard implements OnChanges{
     if (id) {
       this.imgService.dellImg(id).subscribe({
         next: () => {
-          this.deleteClick.emit(); 
+          this.deleteClick.emit();
         },
         error: (err) => {
           console.error('Ошибка бэкенда при удалении:', err);
@@ -77,6 +77,23 @@ export class ImageCard implements OnChanges{
     }
   }
 
+  downloadImage(event: Event): void {
+    event.stopPropagation();
+
+    fetch(this.imgInfo.imagePath)
+      .then(response => response.blob())
+      .then(blob => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = this.imgInfo.name || 'download-image';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(blobUrl);
+      })
+      .catch(err => console.error('Ошибка при скачивании файла:', err));
+  }
   @HostListener('document:click', ['$event'])
   clickOut(event: Event) {
     this.isMenuOpen = false;

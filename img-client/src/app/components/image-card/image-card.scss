@@ -14,8 +14,8 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transition: $transition;
   display: flex;
   flex-direction: column;
-  cursor: pointer; 
-  height: 100%; 
+  cursor: pointer;
+  height: 100%;
 
   &:hover {
     transform: translateY(-6px);
@@ -154,7 +154,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       color: $text-muted;
       margin: 0 0 20px 0;
       line-height: 1.5;
-      
+
       display: -webkit-box;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
@@ -163,7 +163,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .card-footer {
-      margin-top: auto; 
+      margin-top: auto;
       padding-top: 12px;
       border-top: 1px solid #f1f5f9;
       display: flex;
@@ -184,5 +184,34 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.btn-card-download {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: #f1f3f5;
+    transform: scale(1);
+  }
+
+  &:active {
+    transform: scale(0.95);
   }
 }

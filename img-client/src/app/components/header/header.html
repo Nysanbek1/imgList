@@ -1,12 +1,29 @@
 <header class="main-header">
-  <div class="header-container">
+  <nav class="header-nav">
+    <a
+      routerLink="/dashboard"
+      routerLinkActive="active-link"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="nav-btn"
+    >
+      Ваши посты
+    </a>
+    <a
+      routerLink="/posts"
+      routerLinkActive="active-link"
+      class="nav-btn"
+    >
+      Все посты
+    </a>
+  </nav>
 
+  <div class="header-container">
     <div class="header-actions">
       <div class="user-profile">
         <div class="user-avatar">
-          {{ userName.charAt(0).toUpperCase() }}
+          {{ userName ? userName.charAt(0).toUpperCase() : 'U' }}
         </div>
-        <span class="user-name">{{ userName ? userName.charAt(0).toUpperCase() : '' }}</span>
+        <span class="user-name">{{ userName }}</span>
       </div>
 
       <button type="button" class="btn-logout" (click)="onLogout()">
@@ -14,6 +31,5 @@
         <span class="logout-text">Выйти</span>
       </button>
     </div>
-
   </div>
 </header>

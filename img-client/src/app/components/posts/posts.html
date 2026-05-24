@@ -1,0 +1,57 @@
+<app-header></app-header>
+
+<div class="posts-container">
+  <h2 class="page-title">Все публичные посты</h2>
+
+  <div class="posts-grid">
+    @for (post of allImg; track post._id) {
+      <div class="post-card" (click)="openDetail(post)">
+        <div class="card-image-wrapper">
+          <img [src]="baseUrl + post.imagePath" [alt]="post.name" class="card-img">
+        </div>
+        <div class="card-content">
+          <h3 class="card-name">{{ post.name }}</h3>
+          <p class="card-author">Автор: <span>@{{ post.nameUser }}</span></p>
+
+          <button class="btn-download" (click)="downloadImage(post, $event)">
+            Скачать
+          </button>
+        </div>
+      </div>
+    } @empty {
+      <div class="empty-state">Публичных постов пока нет...</div>
+    }
+  </div>
+</div>
+
+@if (selectedPost) {
+  <div class="modal-overlay" (click)="closeDetail()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeDetail()">✕</button>
+
+      <div class="modal-body">
+        <div class="modal-image-pane">
+          <img [src]="baseUrl + selectedPost.imagePath" [alt]="selectedPost.name">
+        </div>
+
+        <div class="modal-info-pane">
+          <h2>{{ selectedPost.name }}</h2>
+          <p class="modal-author">Опубликовал: <strong>{{ selectedPost.nameUser }}</strong></p>
+
+          <div class="modal-description-box">
+            <h4>Описание:</h4>
+            <p>{{ selectedPost.description || 'Описание отсутствует' }}</p>
+          </div>
+
+          <div class="modal-dates">
+            <small>Создано: {{ selectedPost.createdAt | date:'dd.MM.yyyy HH:mm' }}</small>
+          </div>
+
+          <button class="btn-download-large" (click)="downloadImage(selectedPost, $event)">
+            Скачать изображение
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}
