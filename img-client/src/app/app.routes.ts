@@ -24,14 +24,11 @@ export const routes: Routes = [
     canActivate: [authGuard] 
   },
   
-  // 4. Создание пользователя
   {
     path: 'createUser',
     component: UserCreate,
   },
   
-  // 5. Если ввели несуществующий адрес (например /asdfasdf), отправляем на dashboard.
-  // Это предотвратит бесконечный цикл на странице логина.
   { 
     path: '**', 
     redirectTo: 'dashboard' 

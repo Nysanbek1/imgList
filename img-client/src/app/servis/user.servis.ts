@@ -4,7 +4,7 @@ import { api } from "./api";
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { Observable } from "rxjs";
-import { tap } from "rxjs/operators"; // Импортируем tap для побочных эффектов
+import { tap } from "rxjs/operators";
 
 export interface LoginInfo {
   name: string;
@@ -60,14 +60,7 @@ export class UserService {
     }
 
     createUser(createInfo: LoginInfo): Observable<LoginResponse>{
-        return this.http.post<LoginResponse>(apiCreate, createInfo).pipe(
-            tap((response) => {
-                this.setToken(response.access_token);
-                localStorage.setItem('userId', response._id);
-                localStorage.setItem('userName', response.name);
-                this.applyTokenClaims(response.access_token);
-            })
-        );
+        return this.http.post<LoginResponse>(apiCreate, createInfo)
     }
 
     loginUser(loginInfo: LoginInfo): Observable<LoginResponse> {

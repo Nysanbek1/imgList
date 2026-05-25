@@ -29,7 +29,6 @@ export class UserLogin implements OnInit{
     if (this.formLoginUser.valid) {
       this.userService.loginUser(this.formLoginUser.value).subscribe({
         next: (response) => {
-          //console.log('Авторизация успешна, токен сохранен!', response);
           this.router.navigate(['/dashboard']); 
         },
         error: (err) => {

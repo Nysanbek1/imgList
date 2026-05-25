@@ -1,4 +1,3 @@
-// Переменные темы
 $bg-main: #f8fafc;
 $bg-card: #ffffff;
 $text-dark: #0f172a;
@@ -24,9 +23,6 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-// ==========================================
-// ЛЕВАЯ ЧАСТЬ: ГАЛЕРЕЯ
-// ==========================================
 .gallery-section {
   flex: 1;
   .info-box {
@@ -57,7 +53,6 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       transform: scale(0.98);
     }
 
-    // Стиль для заблокированной кнопки (если стерли name)
     &:disabled {
       background-color: #cbd5e1;
       color: #94a3b8;
