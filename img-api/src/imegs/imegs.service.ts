@@ -14,6 +14,7 @@ import { DellImegDto } from './dto/dell-imegs.dto';
 
 @Injectable()
 export class ImegsService {
+
   constructor(
     @InjectModel(Imeg.name)
     private readonly imegs: Model<Imeg>,
@@ -27,7 +28,7 @@ export class ImegsService {
         'Файл изображения обязателен для загрузки',
       );
     }
-    const { name, onerId, description } = createImegDto;
+    const { name, onerId, description, forAllPeople } = createImegDto;
     const onerIdObjID = new Types.ObjectId(onerId);
     const imgTest = await this.imegs
       .findOne({
@@ -46,6 +47,7 @@ export class ImegsService {
       onerId: onerIdObjID,
       description: description,
       imagePath: imagePath,
+      forAllPeople: forAllPeople,
     });
     if (!newImg) {
       throw new UnauthorizedException('ошбка');
@@ -90,7 +92,7 @@ export class ImegsService {
   }
 
   async updateImg(updateImeg: UpdateImegDto, file?: Express.Multer.File) {
-    const { name, _id, onerId, description } = updateImeg;
+    const { name, _id, onerId, description, forAllPeople } = updateImeg;
     const imgId = new Types.ObjectId(_id);
     const onerIdObjID = new Types.ObjectId(onerId);
     const imgTest = await this.imegs
@@ -126,6 +128,7 @@ export class ImegsService {
       imgTest.imagePath = newImagePath;
     }
     imgTest.description = description;
+    imgTest.forAllPeople = forAllPeople ?? false;
     const updateImg = await this.imegs
       .findOneAndUpdate(
         {
@@ -137,6 +140,7 @@ export class ImegsService {
             name: imgTest.name,
             description: imgTest.description,
             imagePath: imgTest.imagePath,
+            forAllPeople: imgTest.forAllPeople,
           },
         },
         {
@@ -210,5 +214,27 @@ export class ImegsService {
       }
     }
     return true;
+  }
+
+  async allOpenImg(skip: number) {
+    const img = await this.imegs
+      .find({ forAllPeople: true })
+      .skip(skip)
+      .limit(20)
+      .lean()
+      .exec();
+    const imgsRes = await Promise.all(
+      img.map(async (res) => {
+        const user = await this.users
+          .findOne({ _id: res.onerId })
+          .lean()
+          .exec();
+        return {
+          ...res,
+          nameUser: user?.name,
+        };
+      }),
+    );
+    return imgsRes;
   }
 }

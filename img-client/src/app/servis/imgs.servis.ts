@@ -9,6 +9,7 @@ const apoGetBiId = api + "imegs/getBiId";
 const apiUpdateImg = api + "imegs/updateImg";
 const apiDellImg = api + "imegs/delleteImgUser/"
 const apiDellImegsAll = api + "imegs/dellImegs"
+const apiAllOpenImg = api + "imegs/allOpenImg/"
 export interface AllUserIngDto {
     _id: string,
     name: string,
@@ -16,6 +17,7 @@ export interface AllUserIngDto {
     createdAt: string,
     updatedAt: string,
     imagePath: string,
+    forAllPeople: boolean,
     onerId: string,
 }
 
@@ -26,7 +28,20 @@ export interface ImageCardDto {
     createdAt: string,
     updatedAt: string,
     imagePath: string,
+    forAllPeople: boolean,
     onerId: string,
+}
+
+export interface ImageCardOpenDto {
+    _id: string,
+    name: string,
+    description: string,
+    createdAt: string,
+    updatedAt: string,
+    imagePath: string,
+    forAllPeople: boolean,
+    onerId: string,
+    nameUser: string,
 }
 
 export interface UpdateImgDto {
@@ -34,6 +49,7 @@ export interface UpdateImgDto {
     onerId: string,
     name: string,
     description: string,
+    forAllPeople: boolean,
 }
 
 
@@ -50,62 +66,42 @@ export class ImgService {
     }
 
     dellImegsAll(Ids: string[]) {
-        const token = localStorage.getItem('token');
-        const headers = new HttpHeaders({
-            'Authorization': `Bearer ${token}`
-        });
         const userId = localStorage.getItem('userId');
-        return this.http.post(apiDellImegsAll, {onerId: userId, _id: Ids }, { headers })
+        return this.http.post(apiDellImegsAll, {onerId: userId, _id: Ids })
     }
-    
+
     dellImg(imgId: string) {
         const token = localStorage.getItem('token');
-        const headers = new HttpHeaders({
-            'Authorization': `Bearer ${token}`
-        });
         const userId = localStorage.getItem('userId');
-        return this.http.delete(`${apiDellImg}${userId}/${imgId}`, { headers })
+        return this.http.delete(`${apiDellImg}${userId}/${imgId}`)
     }
 
     updateImg(formData: FormData) {
-        const token = localStorage.getItem('token');
-        const headers = new HttpHeaders({
-            'Authorization': `Bearer ${token}`
-        });
+
         if (this.currentUserId) {
             formData.append('onerId', this.currentUserId);
         }
-        return this.http.put(`${apiUpdateImg}`, formData, { headers })
+        return this.http.put(`${apiUpdateImg}`, formData)
     }
 
     getBiId(ImgId: string): Observable<ImageCardDto> {
-        const token = localStorage.getItem('token');
         const userId = localStorage.getItem('userId');
-        const headers = new HttpHeaders({
-            'Authorization': `Bearer ${token}`
-        });
-        return this.http.get<ImageCardDto>(`${apoGetBiId}/${userId}/${ImgId}`, { headers })
+        return this.http.get<ImageCardDto>(`${apoGetBiId}/${userId}/${ImgId}`)
     }
 
     getAllUserIng(): Observable<AllUserIngDto[]> {
-        const token = localStorage.getItem('token');
         const userId = localStorage.getItem('userId');
-        const headers = new HttpHeaders({
-            'Authorization': `Bearer ${token}`
-        });
-        return this.http.get<AllUserIngDto[]>(`${apiGetAllUserImg}${userId}`, { headers })
+        return this.http.get<AllUserIngDto[]>(`${apiGetAllUserImg}${userId}`)
     }
 
     createImg(formData: FormData) {
-        const token = localStorage.getItem('token');
-        
-        const headers = new HttpHeaders({
-            'Authorization': `Bearer ${token}`
-        });
-
         if (this.currentUserId) {
             formData.append('onerId', this.currentUserId);
         }
-        return this.http.post<boolean>(apiCreateImg, formData, { headers });
+        return this.http.post<boolean>(apiCreateImg, formData);
+    }
+
+    allOpenImg(skip: number): Observable<ImageCardOpenDto[]> {
+      return this.http.get<ImageCardOpenDto[]>(`${apiAllOpenImg}${skip}`)
     }
 }

@@ -4,11 +4,12 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { AllUserIngDto, ImgService } from '../../servis/imgs.servis';
 import { ImageCard } from '../image-card/image-card';
+import { Header } from '../header/header';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule, ImageCard],
+  imports: [ReactiveFormsModule, CommonModule, ImageCard, Header],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -27,26 +28,29 @@ export class Dashboard implements OnInit {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('fileUpdateInput') fileUpdateInput!: ElementRef<HTMLInputElement>;
   constructor(private fb: FormBuilder, private imgService: ImgService, private cdr: ChangeDetectorRef) {}
-  
+
   ngOnInit(): void {
     this.imgForm = this.fb.group({
       name: ['', [Validators.required]],
-      description: ['']
+      description: [''],
+      forAllPeople: [false]
     });
     this.updateImgForm = this.fb.group({
       name: ['', [Validators.required]],
-      description: ['']
+      description: [''],
+      forAllPeople: [false]
     });
     this.loadImages()
   }
   loadImages(): void {
     this.imgService.getAllUserIng().subscribe({
       next: (response) => {
+        console.log(response)
         const timestamp = new Date().getTime();
         this.allImg = response.map(img => ({
         ...img,
-        imagePath: img.imagePath.includes('?') 
-          ? `${img.imagePath}&cb=${timestamp}` 
+        imagePath: img.imagePath.includes('?')
+          ? `${img.imagePath}&cb=${timestamp}`
           : `${img.imagePath}?cb=${timestamp}`
       }));
         this.cdr.detectChanges();
@@ -67,8 +71,8 @@ export class Dashboard implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       if (this.updateImagePreview) URL.revokeObjectURL(this.updateImagePreview); // очистка памяти
-      
-      this.updateFile = input.files[0]; 
+
+      this.updateFile = input.files[0];
       this.updateImagePreview = URL.createObjectURL(this.updateFile);
       this.cdr.detectChanges();
     }
@@ -80,6 +84,7 @@ export class Dashboard implements OnInit {
     const fileExtension = this.selectedFile.name.split('.').pop()
     formData.append('name', this.imgForm.get('name')?.value);
     formData.append('description', this.imgForm.get('description')?.value);
+    formData.append('forAllPeople', this.imgForm.get('forAllPeople')?.value);
     formData.append('file', this.selectedFile, `${this.imgForm.get('name')?.value}.${fileExtension}`);
     this.imgService.createImg(formData).subscribe({
       next: (response) => {
@@ -101,7 +106,8 @@ export class Dashboard implements OnInit {
     this.isUpdate = true;
     this.updateImgForm.patchValue({
       name: this.selectedCard?.name,
-      description: this.selectedCard?.description
+      description: this.selectedCard?.description,
+      forAllPeople: this.selectedCard?.forAllPeople
     });
     this.updateImagePreview = null;
     this.cdr.detectChanges();
@@ -115,9 +121,11 @@ export class Dashboard implements OnInit {
     const formData = new FormData();
     formData.append('name', this.updateImgForm.get('name')?.value);
     formData.append('description', this.updateImgForm.get('description')?.value);
+    formData.append('forAllPeople', this.updateImgForm.get('forAllPeople')?.value);
+
     if(id) {
       formData.append('_id', id);
-    } 
+    }
     if (this.updateFile) {
       const fileExtension = this.updateFile.name.split('.').pop();
       formData.append('file', this.updateFile, `${this.updateImgForm.get('name')?.value}.${fileExtension}`);
@@ -143,7 +151,7 @@ export class Dashboard implements OnInit {
         next: (response) => {
           this.selectedCard = null;
           this.loadImages()
-          
+
         },
         error: (err) => {
           console.error('Ошибка бэкенда:', err);
@@ -165,7 +173,7 @@ export class Dashboard implements OnInit {
 
   openModal(card: AllUserIngDto): void {
     this.selectedCard = card;
-    this.isUpdate = false; 
+    this.isUpdate = false;
     this.updateImagePreview = null;
     this.cdr.detectChanges();
   }
@@ -178,7 +186,7 @@ export class Dashboard implements OnInit {
   }
 
   selectAction(id: string): void {
-    this.listId = [...this.listId, id]; 
+    this.listId = [...this.listId, id];
     if (this.listId.length > 0) {
       this.action = true;
     }
@@ -192,5 +200,22 @@ export class Dashboard implements OnInit {
     }
     this.cdr.detectChanges();
   }
-  
+
+  downloadSelectedFromModal(): void {
+    if (!this.selectedCard) return;
+
+    fetch(this.selectedCard.imagePath)
+      .then(response => response.blob())
+      .then(blob => {
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = this.selectedCard?.name || 'download-image';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(blobUrl);
+      })
+      .catch(err => console.error('Ошибка при скачивании файла из модального окна:', err));
+  }
 }

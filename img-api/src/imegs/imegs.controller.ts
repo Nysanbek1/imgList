@@ -18,7 +18,7 @@ import { UpdateImegDto } from './dto/update-imeg.dto';
 import { DellImegDto } from './dto/dell-imegs.dto';
 
 @Controller('imegs')
-@UseGuards(JwtAuthGuard)
+//@UseGuards(JwtAuthGuard)
 export class ImegsController {
   constructor(private readonly imegsService: ImegsService) {}
 
@@ -28,6 +28,7 @@ export class ImegsController {
     @Body() createImegDto: CreateImegDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    console.log(createImegDto);
     return this.imegsService.create(createImegDto, file);
   }
 
@@ -58,5 +59,10 @@ export class ImegsController {
   @Post('dellImegs')
   dellImegs(@Body() dellImegDto: DellImegDto) {
     return this.imegsService.dellImegs(dellImegDto);
+  }
+
+  @Get('allOpenImg/:skip')
+  allOpenImg(@Param('skip') skip: string) {
+    return this.imegsService.allOpenImg(+skip);
   }
 }

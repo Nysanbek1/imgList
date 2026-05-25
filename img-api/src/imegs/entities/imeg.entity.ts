@@ -14,6 +14,9 @@ export class Imeg {
   @Prop({ required: true })
   onerId!: Types.ObjectId;
 
+  @Prop({ required: true, default: false })
+  forAllPeople!: boolean;
+
   @Prop({ required: true })
   imagePath!: string;
 }
