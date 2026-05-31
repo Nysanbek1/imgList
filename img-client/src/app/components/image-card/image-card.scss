@@ -22,7 +22,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
     .card-image-wrapper img {
-      transform: scale(1.05); // Плавный зум картинки при наведении
+      transform: scale(1.05);
     }
   }
 
@@ -40,14 +40,12 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       transition: $transition;
     }
 
-    // Контейнер для кнопки выпадающего списка и самого меню
     .card-actions-wrapper {
       position: absolute;
       top: 12px;
       right: 12px;
       z-index: 10;
 
-      // Кнопка трех точек (троеточие)
       .btn-menu-trigger {
         background: rgba(15, 23, 42, 0.7);
         color: #ffffff;
@@ -74,7 +72,6 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
       }
 
-      // Выпадающее контекстное меню
       .actions-dropdown {
         position: absolute;
         top: 38px;
@@ -105,7 +102,6 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             color: $text-dark;
           }
 
-          // Элемент удаления
           &.delete-item {
             color: #ef4444;
 
@@ -121,7 +117,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .edited-badge {
       position: absolute;
       top: 12px;
-      right: 54px; // 🔥 Сдвинули левее, чтобы не перекрывать кнопку меню "⋮"
+      right: 54px;
       background: rgba(15, 23, 42, 0.75);
       backdrop-filter: blur(4px);
       color: #fff;
@@ -175,7 +171,6 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-// Анимация раскрытия списка
 @keyframes fadeInDropdown {
   from {
     opacity: 0;

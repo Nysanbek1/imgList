@@ -1,6 +1,3 @@
-// ==========================================
-// ПЕРЕМЕННЫЕ И НАСТРОЙКИ
-// ==========================================
 $bg-main: #f8fafc;
 $bg-card: #ffffff;
 $text-dark: #0f172a;
@@ -19,7 +16,6 @@ $shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 $shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 
-// Шаблон базовой кнопки для modal-actions и gallery-section
 %base-button {
   font-size: 14px;
   font-weight: 600;
@@ -45,9 +41,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 }
 
-// ==========================================
-// КОРНЕВОЙ ЛЕЙАУТ ДЕШБОРДА
-// ==========================================
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
@@ -64,9 +57,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 }
 
-// ==========================================
-// ЛЕВАЯ ЧАСТЬ: ГАЛЕРЕЯ И КАРТОЧКИ
-// ==========================================
 .gallery-section {
   flex: 1;
 
@@ -107,7 +97,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   align-items: start;
 }
 
-// Стили самого хост-компонента <app-image-card>
 .image-card {
   background: $bg-card;
   border-radius: $radius;
@@ -207,9 +196,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   p { color: $text-muted; font-size: 14px; margin: 0; }
 }
 
-// ==========================================
-// ПРАВАЯ ЧАСТЬ: БОКОВАЯ ПАНЕЛЬ С ФОРМОЙ
-// ==========================================
 .upload-sidebar {
   width: 360px;
   flex-shrink: 0;
@@ -232,7 +218,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 }
 
-// Общие стили для полей ввода (Sidebar & Modal)
 .form-group {
   margin-bottom: 20px;
   display: flex;
@@ -304,7 +289,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     .upload-text { font-size: 13px; color: $text-muted; font-weight: 500; }
   }
 
-  // Обёртка для контейнера превью (Сетка для нескольких фото)
   .upload-preview-container {
     position: relative;
     width: 100%;
@@ -351,7 +335,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 }
 
-// Хэдер-бейджи файлов под драг-зоной
 .file-info-badge {
   display: flex;
   align-items: center;
@@ -363,7 +346,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   color: $text-dark;
 }
 
-// Кастомный переключатель (Кастомный Checkbox / Switch)
 .form-group-toggle {
   display: flex;
   align-items: center;
@@ -418,7 +400,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 }
 
-// Кнопки отправки и триггеры действий
 .btn-submit {
   @extend %base-button;
   width: 100%;
@@ -432,7 +413,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 }
 
-// Унифицированная кнопка удаления (Используется и в галерее, и в модалке)
 .btn-dell-trigger {
   @extend %base-button;
   background-color: $danger;
@@ -445,9 +425,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 }
 
-// ==========================================
-// МОДАЛЬНОЕ ОКНО ПРОСМОТРА И РЕДАКТИРОВАНИЯ
-// ==========================================
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -510,7 +487,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 }
 
-// Левая галерейная зона в модальном окне (Вертикальный скролл-лист изображений)
 .modal-image-panel {
   background: #0f172a;
   padding: 16px;
@@ -540,7 +516,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 }
 
-// Правая текстовая и управляющая зона в модалке
 .modal-info-panel {
   padding: 32px;
   display: flex;
@@ -593,7 +568,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 }
 
-// Контейнер управления внутри модального окна
 .modal-actions-box {
   margin: 20px 0;
   display: flex;
@@ -617,9 +591,6 @@ $shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   }
 }
 
-// ==========================================
-// АНИМАЦИОННЫЕ КЛЮЧИ
-// ==========================================
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

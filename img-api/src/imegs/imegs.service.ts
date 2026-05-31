@@ -113,7 +113,6 @@ export class ImegsService {
     let newImagePaths = imgFind.imagePath;
     let filesWereSaved = false;
 
-    // 2. Валидация изменения имени
     if (name !== undefined && oldName !== name) {
       const nameTest = await this.imegs
         .findOne({ ownerId: ownerIdObjID, name: name })

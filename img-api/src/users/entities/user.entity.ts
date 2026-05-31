@@ -16,7 +16,6 @@ export class User {
 export const UserSchema = SchemaFactory.createForClass(User);
 
 UserSchema.pre<UserDocument>('save', async function () {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
   const user = this;
 
   if (!user.isModified('password')) {
@@ -25,7 +24,6 @@ UserSchema.pre<UserDocument>('save', async function () {
 
   try {
     const salt = await bcrypt.genSalt(10);
-    // Хэшируем пароль и заменяем исходный текст хэшем
     user.password = await bcrypt.hash(user.password, salt);
   } catch {
     return console.log(this.errors);

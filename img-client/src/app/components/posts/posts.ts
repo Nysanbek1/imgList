@@ -27,8 +27,6 @@ export class Posts implements OnInit {
   loadImages(): void {
     this.imgService.allOpenImg(this.skip).subscribe({
       next: (res) => {
-        // Предполагаем, что бэкенд отдает imagePath как массив строк.
-        // Если это не так, потребуется map на стороне фронтенда.
         this.allImg = [...this.allImg, ...res];
         this.cdr.detectChanges();
       },
@@ -46,7 +44,6 @@ export class Posts implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // ИСПРАВЛЕНО: Организован последовательный запуск скачивания для каждого файла в массиве
   downloadImage(post: ImageCardOpenDto, event: Event): void {
     event.stopPropagation();
 

@@ -52,7 +52,6 @@ export class Dashboard implements OnInit {
       next: (response) => {
         const timestamp = new Date().getTime();
 
-        // Добавляем кэш-бастер к каждому пути внутри массива, чтобы избежать кэширования картинок браузером
         this.allImg = response.map(img => ({
           ...img,
           imagePath: img.imagePath.map(p => p.includes('?') ? `${p}&cb=${timestamp}` : `${p}?cb=${timestamp}`)
@@ -64,7 +63,6 @@ export class Dashboard implements OnInit {
     });
   }
 
-  // Чтение нескольких файлов при создании публикации
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -76,7 +74,6 @@ export class Dashboard implements OnInit {
     }
   }
 
-  // Чтение нескольких файлов при обновлении поста
   onFileUpdate(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -88,7 +85,6 @@ export class Dashboard implements OnInit {
     }
   }
 
-  // Отправка формы создания
   onUpload(): void {
     if (this.imgForm.invalid || this.selectedFiles.length === 0) {
       return;
@@ -142,8 +138,6 @@ export class Dashboard implements OnInit {
       formData.append('_id', id);
     }
 
-    // ИСПРАВЛЕНО: Ключ отправки файлов ('image') сделан таким же, как и в onUpload,
-    // чтобы бэкенд-интерцептор отработал штатно.
     if (this.updateFiles.length > 0) {
       this.updateFiles.forEach((file, index) => {
         const fileExtension = file.name.split('.').pop();
@@ -257,7 +251,6 @@ export class Dashboard implements OnInit {
     });
   }
 
-  // Вспомогательные методы очистки ресурсов памяти (Revoke Object URL)
   private clearImagePreviews(): void {
     this.imagePreviews.forEach(url => URL.revokeObjectURL(url));
     this.imagePreviews = [];

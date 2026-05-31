@@ -4,17 +4,14 @@ import { UserService } from '../../servis/user.servis';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
-// 1. Создаем функцию-валидатор для совпадения полей
 export const matchPasswordsValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('password');
   const passwordTwo = control.get('passwordTwo');
 
-  // Если поля еще не инициализированы или пустые, не ругаемся
   if (!password || !passwordTwo || !password.value || !passwordTwo.value) {
     return null;
   }
 
-  // Если значения не совпадают, возвращаем объект ошибки
   return password.value === passwordTwo.value ? null : { passwordsMismatch: true };
 };
 
@@ -39,8 +36,8 @@ export class UserCreate implements OnInit {
       name: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       passwordTwo: ['', [Validators.required, Validators.minLength(6)]]
-    }, { 
-      validators: matchPasswordsValidator 
+    }, {
+      validators: matchPasswordsValidator
     });
   }
 

@@ -40,7 +40,6 @@
       border-color: #4a90e2;
     }
 
-    // Стили для невалидного поля, если до него докоснулись
     &.invalid {
       border-color: #e74c3c;
       background-color: #fdf2f2;
@@ -78,7 +77,7 @@
 button[type="submit"] {
   width: 100%;
   padding: 12px;
-  background-color: #2ecc71; // Сделаем кнопку регистрации зеленой, чтобы отличалась от логина
+  background-color: #2ecc71;
   color: white;
   border: none;
   border-radius: 4px;
