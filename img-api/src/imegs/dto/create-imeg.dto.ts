@@ -7,7 +7,7 @@ export class CreateImegDto {
 
   @IsNotEmpty()
   @IsString()
-  onerId!: string;
+  ownerId!: string;
 
   @IsString()
   @IsOptional()

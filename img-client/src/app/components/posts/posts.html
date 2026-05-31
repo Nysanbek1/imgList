@@ -7,7 +7,11 @@
     @for (post of allImg; track post._id) {
       <div class="post-card" (click)="openDetail(post)">
         <div class="card-image-wrapper">
-          <img [src]="baseUrl + post.imagePath" [alt]="post.name" class="card-img">
+          <img [src]="baseUrl + post.imagePath[0]" [alt]="post.name" class="card-img" loading="lazy">
+
+          @if (post.imagePath.length > 1) {
+            <span class="images-count-badge">+{{ post.imagePath.length - 1 }}</span>
+          }
         </div>
         <div class="card-content">
           <h3 class="card-name">{{ post.name }}</h3>
@@ -31,7 +35,11 @@
 
       <div class="modal-body">
         <div class="modal-image-pane">
-          <img [src]="baseUrl + selectedPost.imagePath" [alt]="selectedPost.name">
+          <div class="modal-images-scroll-container">
+            @for (path of selectedPost.imagePath; track path) {
+              <img [src]="baseUrl + path" [alt]="selectedPost.name" class="modal-scroll-img">
+            }
+          </div>
         </div>
 
         <div class="modal-info-pane">
@@ -48,7 +56,7 @@
           </div>
 
           <button class="btn-download-large" (click)="downloadImage(selectedPost, $event)">
-            Скачать изображение
+            Скачать все изображения
           </button>
         </div>
       </div>

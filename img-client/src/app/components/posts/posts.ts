@@ -1,12 +1,12 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ImageCardOpenDto, ImgService } from '../../servis/imgs.servis';
 import { Header } from '../header/header';
-import { CommonModule } from '@angular/common'; // Импортируем CommonModule
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-posts',
   standalone: true,
-  imports: [Header, CommonModule], // Добавили CommonModule сюда
+  imports: [Header, CommonModule],
   templateUrl: './posts.html',
   styleUrl: './posts.scss',
 })
@@ -14,10 +14,8 @@ export class Posts implements OnInit {
   allImg: ImageCardOpenDto[] = [];
   skip = 0;
 
-  // Переменная для хранения активного поста в модальном окне
   selectedPost: ImageCardOpenDto | null = null;
 
-  // Базовый URL твоего бэкенда для картинок (поменяй порт, если другой)
   readonly baseUrl = 'http://localhost:3010/';
 
   constructor(private imgService: ImgService, private cdr: ChangeDetectorRef) {}
@@ -29,6 +27,8 @@ export class Posts implements OnInit {
   loadImages(): void {
     this.imgService.allOpenImg(this.skip).subscribe({
       next: (res) => {
+        // Предполагаем, что бэкенд отдает imagePath как массив строк.
+        // Если это не так, потребуется map на стороне фронтенда.
         this.allImg = [...this.allImg, ...res];
         this.cdr.detectChanges();
       },
@@ -36,37 +36,55 @@ export class Posts implements OnInit {
     });
   }
 
-  // Открыть модалку
   openDetail(post: ImageCardOpenDto): void {
     this.selectedPost = post;
     this.cdr.detectChanges();
   }
 
-  // Закрыть модалку
   closeDetail(): void {
     this.selectedPost = null;
     this.cdr.detectChanges();
   }
 
-  // Метод для скачивания картинки
+  // ИСПРАВЛЕНО: Организован последовательный запуск скачивания для каждого файла в массиве
   downloadImage(post: ImageCardOpenDto, event: Event): void {
-    event.stopPropagation(); // Чтобы не срабатывал клик по самой карточке
+    event.stopPropagation();
 
-    const imageUrl = `${this.baseUrl}${post.imagePath}`;
+    if (!post.imagePath || post.imagePath.length === 0) return;
 
-    // Скачивание через создание временной ссылки
-    fetch(imageUrl)
-      .then(response => response.blob())
-      .then(blob => {
-        const blobUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = post.name || 'downloaded-image';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(blobUrl);
-      })
-      .catch(err => console.error('Ошибка при скачивании файла:', err));
+    this.imgService.download(post._id).subscribe({
+      next: (response: string[]) => {
+        if (!response || response.length === 0) return;
+
+        response.forEach((fullUrl: string, index: number) => {
+
+          fetch(fullUrl)
+            .then(res => {
+              if (!res.ok) throw new Error(`Ошибка сети: ${res.statusText}`);
+              return res.blob();
+            })
+            .then(blob => {
+              const blobUrl = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = blobUrl;
+
+              const extension = fullUrl.split('.').pop() || 'jpg';
+
+              a.download = `${post?.name || 'image'}_${index + 1}.${extension}`;
+
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              window.URL.revokeObjectURL(blobUrl);
+            })
+            .catch(err => console.error(`Ошибка при скачивании файла №${index + 1}:`, err));
+        });
+      },
+      error: (err) => {
+        console.error('Не удалось получить пути к файлам от сервера:', err);
+      }
+    });
   }
+
+
 }

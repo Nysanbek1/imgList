@@ -3,12 +3,12 @@ import { Injectable } from "@angular/core";
 import { api } from "./api";
 import { Observable } from "rxjs";
 
-const apiCreateImg = api + "imegs/createPostImg";
-const apiGetAllUserImg = api + "imegs/getAllUserImgs/";
-const apoGetBiId = api + "imegs/getBiId";
-const apiUpdateImg = api + "imegs/updateImg";
-const apiDellImg = api + "imegs/delleteImgUser/"
-const apiDellImegsAll = api + "imegs/dellImegs"
+const apiCreateImg = api + "imegs/image-items-create";
+const apiGetAllUserImg = api + "imegs/image-items-all/";
+const apoGetDownload = api + "imegs/image-items";
+const apiUpdateImg = api + "imegs/image-items-update";
+const apiDellImg = api + "imegs/image-items-dell-one/"
+const apiDellImegsAll = api + "imegs/image-items-dell-list"
 const apiAllOpenImg = api + "imegs/allOpenImg/"
 export interface AllUserIngDto {
     _id: string,
@@ -16,9 +16,9 @@ export interface AllUserIngDto {
     description: string,
     createdAt: string,
     updatedAt: string,
-    imagePath: string,
+    imagePath: string[],
     forAllPeople: boolean,
-    onerId: string,
+    ownerId: string,
 }
 
 export interface ImageCardDto {
@@ -29,7 +29,7 @@ export interface ImageCardDto {
     updatedAt: string,
     imagePath: string,
     forAllPeople: boolean,
-    onerId: string,
+    ownerId: string,
 }
 
 export interface ImageCardOpenDto {
@@ -38,15 +38,15 @@ export interface ImageCardOpenDto {
     description: string,
     createdAt: string,
     updatedAt: string,
-    imagePath: string,
+    imagePath: string[],
     forAllPeople: boolean,
-    onerId: string,
+    ownerId: string,
     nameUser: string,
 }
 
 export interface UpdateImgDto {
     _id: string,
-    onerId: string,
+    ownerId: string,
     name: string,
     description: string,
     forAllPeople: boolean,
@@ -67,7 +67,7 @@ export class ImgService {
 
     dellImegsAll(Ids: string[]) {
         const userId = localStorage.getItem('userId');
-        return this.http.post(apiDellImegsAll, {onerId: userId, _id: Ids })
+        return this.http.post(apiDellImegsAll, {ownerId: userId, _id: Ids })
     }
 
     dellImg(imgId: string) {
@@ -79,14 +79,13 @@ export class ImgService {
     updateImg(formData: FormData) {
 
         if (this.currentUserId) {
-            formData.append('onerId', this.currentUserId);
+            formData.append('ownerId', this.currentUserId);
         }
         return this.http.put(`${apiUpdateImg}`, formData)
     }
 
-    getBiId(ImgId: string): Observable<ImageCardDto> {
-        const userId = localStorage.getItem('userId');
-        return this.http.get<ImageCardDto>(`${apoGetBiId}/${userId}/${ImgId}`)
+    download(ImgId: string): Observable<string[]> {
+        return this.http.get<string[]>(`${apoGetDownload}/${ImgId}/download`)
     }
 
     getAllUserIng(): Observable<AllUserIngDto[]> {
@@ -96,7 +95,7 @@ export class ImgService {
 
     createImg(formData: FormData) {
         if (this.currentUserId) {
-            formData.append('onerId', this.currentUserId);
+            formData.append('ownerId', this.currentUserId);
         }
         return this.http.post<boolean>(apiCreateImg, formData);
     }

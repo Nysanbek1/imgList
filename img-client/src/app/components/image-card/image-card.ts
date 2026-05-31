@@ -1,5 +1,4 @@
-import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output, HostListener, ChangeDetectorRef, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, Output, HostListener, OnChanges, SimpleChanges, ElementRef } from '@angular/core';
 import { AllUserIngDto, ImgService } from '../../servis/imgs.servis';
 import { DatePipe } from '@angular/common';
 
@@ -10,19 +9,18 @@ import { DatePipe } from '@angular/common';
   templateUrl: './image-card.html',
   styleUrl: './image-card.scss',
 })
-export class ImageCard implements OnChanges{
+export class ImageCard implements OnChanges {
   @Input() imgInfo!: AllUserIngDto;
-  @Input() listId: string[] =[];
+  @Input() listId: string[] = [];
   @Output() cardClick = new EventEmitter<AllUserIngDto>();
   @Output() deleteClick = new EventEmitter<void>();
   @Output() selectAction = new EventEmitter<string>();
   @Output() dellSelectAction = new EventEmitter<string>();
+
   isMenuOpen = false;
   action: boolean = false;
 
-
-  constructor(private imgService: ImgService) {}
-
+  constructor(private imgService: ImgService, private elementRef: ElementRef) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['listId'] || changes['imgInfo']) {
@@ -44,22 +42,19 @@ export class ImageCard implements OnChanges{
     }
   }
 
-
-  toggleMenu(): void {
+  toggleMenu(event: Event): void {
+    event.stopPropagation();
     this.isMenuOpen = !this.isMenuOpen;
   }
 
   onDellSelectAction(): void {
     this.isMenuOpen = false;
-    this.dellSelectAction.emit(this.imgInfo._id)
-
+    this.dellSelectAction.emit(this.imgInfo._id);
   }
 
-  // Клик по действию "Выбрать"
   onSelectAction(): void {
     this.isMenuOpen = false;
-    this.selectAction.emit(this.imgInfo._id)
-    //this.onCardClick();
+    this.selectAction.emit(this.imgInfo._id);
   }
 
   onDeleteAction(): void {
@@ -77,25 +72,12 @@ export class ImageCard implements OnChanges{
     }
   }
 
-  downloadImage(event: Event): void {
-    event.stopPropagation();
 
-    fetch(this.imgInfo.imagePath)
-      .then(response => response.blob())
-      .then(blob => {
-        const blobUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = this.imgInfo.name || 'download-image';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(blobUrl);
-      })
-      .catch(err => console.error('Ошибка при скачивании файла:', err));
-  }
+
   @HostListener('document:click', ['$event'])
   clickOut(event: Event) {
-    this.isMenuOpen = false;
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.isMenuOpen = false;
+    }
   }
 }

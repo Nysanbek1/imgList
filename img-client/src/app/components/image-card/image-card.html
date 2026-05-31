@@ -1,9 +1,9 @@
 <article class="image-card" (click)="onCardClick()">
   <div class="card-image-wrapper">
-    <img [src]="imgInfo.imagePath" [alt]="imgInfo.name" loading="lazy">
+    <img [src]="imgInfo.imagePath[0]" [alt]="imgInfo.name" loading="lazy">
 
     <div class="card-actions-wrapper" (click)="$event.stopPropagation()">
-      <button class="btn-menu-trigger" (click)="toggleMenu()">⋮</button>
+      <button class="btn-menu-trigger" (click)="toggleMenu($event)">⋮</button>
 
       @if (isMenuOpen) {
         <ul class="actions-dropdown">
@@ -13,7 +13,6 @@
             } @else {
                 <li (click)="onDellSelectAction()">Отмена</li>
             }
-
         </ul>
       }
     </div>
@@ -29,6 +28,5 @@
     <div class="card-footer">
       <span class="card-date">{{ imgInfo.createdAt | date:'dd.MM.yyyy, HH:mm' }}</span>
     </div>
-    <button class="btn-card-download" (click)="downloadImage($event)" title="Скачать изображение">Скачать изображение</button>
   </div>
 </article>

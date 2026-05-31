@@ -11,7 +11,7 @@ export class UpdateImegDto {
 
   @IsNotEmpty()
   @IsString()
-  onerId!: string;
+  ownerId!: string;
 
   @IsString()
   @IsOptional()

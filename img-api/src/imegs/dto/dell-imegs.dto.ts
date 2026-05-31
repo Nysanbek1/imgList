@@ -1,6 +1,6 @@
 import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 
-export class DellImegDto {
+export class DeleteImgsDto {
   @IsArray()
   @IsString()
   @IsNotEmpty()
@@ -8,5 +8,5 @@ export class DellImegDto {
 
   @IsString()
   @IsNotEmpty()
-  onerId!: string;
+  ownerId!: string;
 }

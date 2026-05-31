@@ -1,5 +1,7 @@
 import {
+  BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -10,11 +12,10 @@ import { Model, Types } from 'mongoose';
 import { User } from 'src/users/entities/user.entity';
 import { PhotoServis } from 'src/servis/photo';
 import { UpdateImegDto } from './dto/update-imeg.dto';
-import { DellImegDto } from './dto/dell-imegs.dto';
+import { DeleteImgsDto } from './dto/dell-imegs.dto';
 
 @Injectable()
 export class ImegsService {
-
   constructor(
     @InjectModel(Imeg.name)
     private readonly imegs: Model<Imeg>,
@@ -22,31 +23,29 @@ export class ImegsService {
     private readonly users: Model<User>,
     private readonly photo: PhotoServis,
   ) {}
-  async create(createImegDto: CreateImegDto, file: Express.Multer.File) {
-    if (!file) {
+  async create(createImegDto: CreateImegDto, file: Express.Multer.File[]) {
+    if (!file || file.length == 0) {
       throw new UnauthorizedException(
         'Файл изображения обязателен для загрузки',
       );
     }
-    const { name, onerId, description, forAllPeople } = createImegDto;
-    const onerIdObjID = new Types.ObjectId(onerId);
-    const imgTest = await this.imegs
+    const { name, ownerId, description, forAllPeople } = createImegDto;
+    const ownerIdObjID = new Types.ObjectId(ownerId);
+    const imgFind = await this.imegs
       .findOne({
         name: name,
-        onerId: onerIdObjID,
+        ownerId: ownerIdObjID,
       })
       .lean()
       .exec();
-    if (imgTest) {
+    if (imgFind) {
       throw new UnauthorizedException('Такое имя уже занято');
     }
-
-    const imagePath = this.photo.saveIMG(onerId, 'userPostPhoto', file);
     const newImg = await this.imegs.create({
       name: name,
-      onerId: onerIdObjID,
+      ownerId: ownerIdObjID,
       description: description,
-      imagePath: imagePath,
+      imagePath: this.photo.saveIMG(ownerId, 'userPostPhoto', file, name),
       forAllPeople: forAllPeople,
     });
     if (!newImg) {
@@ -56,9 +55,9 @@ export class ImegsService {
   }
 
   async getAllUserImgs(userId: string) {
-    const onerIdObjID = new Types.ObjectId(userId);
+    const ownerIdObjID = new Types.ObjectId(userId);
     const allImgImfo = await this.imegs
-      .find({ onerId: onerIdObjID })
+      .find({ ownerId: ownerIdObjID })
       .select('-__v')
       .lean()
       .exec();
@@ -66,118 +65,170 @@ export class ImegsService {
       return [];
     }
     const fileRes = allImgImfo.map((img) => {
+      const imagePath = img.imagePath.map(
+        (res) => `http://localhost:3010/${res}`,
+      );
       return {
         ...img,
-        imagePath: `http://localhost:3010/${img.imagePath}`,
+        imagePath: imagePath,
       };
     });
     return fileRes;
   }
 
-  async getBiId(userId: string, imgId: string) {
-    const onerIdObjID = new Types.ObjectId(userId);
+  async downloadFile(imgId: string) {
     const imgIdObjID = new Types.ObjectId(imgId);
-    const imgImfo = await this.imegs
-      .findOne({ _id: imgIdObjID, onerId: onerIdObjID })
+
+    const imgRecord = await this.imegs
+      .findOne({ _id: imgIdObjID })
       .select('-__v')
       .lean()
       .exec();
-    if (!imgImfo) {
-      return {};
+
+    if (!imgRecord) {
+      throw new NotFoundException('Запись об изображении не найдена');
     }
-    return {
-      ...imgImfo,
-      imagePath: `http://localhost:3010/${imgImfo.imagePath}`,
-    };
+    const fileRes = imgRecord.imagePath.map(
+      (res) => `http://localhost:3010/${res}`,
+    );
+    return fileRes;
   }
 
-  async updateImg(updateImeg: UpdateImegDto, file?: Express.Multer.File) {
-    const { name, _id, onerId, description, forAllPeople } = updateImeg;
+  async updateImg(updateImeg: UpdateImegDto, files?: Express.Multer.File[]) {
+    const { name, _id, ownerId, description, forAllPeople } = updateImeg;
     const imgId = new Types.ObjectId(_id);
-    const onerIdObjID = new Types.ObjectId(onerId);
-    const imgTest = await this.imegs
-      .findOne({
-        _id: imgId,
-        onerId: onerIdObjID,
-      })
+    const ownerIdObjID = new Types.ObjectId(ownerId);
+
+    const imgFind = await this.imegs
+      .findOne({ _id: imgId, ownerId: ownerIdObjID })
       .lean()
       .exec();
-    if (!imgTest) {
-      throw new NotFoundException('IMG не найден');
+
+    if (!imgFind) {
+      throw new NotFoundException('Изображение не найдено');
     }
-    const oldName = imgTest.name;
+
+    const oldName = imgFind.name;
+    let finalName = oldName;
+    let newImagePaths = imgFind.imagePath;
+    let filesWereSaved = false;
+
+    // 2. Валидация изменения имени
     if (name !== undefined && oldName !== name) {
       const nameTest = await this.imegs
-        .findOne({
-          onerId: onerIdObjID,
-          name: name,
-        })
+        .findOne({ ownerId: ownerIdObjID, name: name })
         .lean()
         .exec();
+
       if (nameTest) {
-        throw new UnauthorizedException('ошбка');
+        throw new BadRequestException(
+          'Пост с таким именем уже существует у данного пользователя',
+        );
       }
-      imgTest.name = name;
+      finalName = name;
     }
-    if (file) {
-      this.photo.deleteIMG(imgTest.imagePath);
-      const newImagePath = this.photo.saveIMG(onerId, 'userPostPhoto', file);
-      imgTest.imagePath = newImagePath;
-    } else {
-      const newImagePath = this.photo.renameIMG(imgTest.imagePath, name);
-      imgTest.imagePath = newImagePath;
+
+    if (files && files.length > 0) {
+      newImagePaths = this.photo.saveIMG(
+        ownerId,
+        'userPostPhoto',
+        files,
+        finalName,
+      );
+      filesWereSaved = true;
+    } else if (oldName !== finalName) {
+      newImagePaths = this.photo.renamePostDir(
+        ownerId,
+        'userPostPhoto',
+        oldName,
+        finalName,
+        imgFind.imagePath,
+      );
     }
-    imgTest.description = description;
-    imgTest.forAllPeople = forAllPeople ?? false;
-    const updateImg = await this.imegs
-      .findOneAndUpdate(
-        {
-          _id: imgId,
-          onerId: onerIdObjID,
-        },
-        {
-          $set: {
-            name: imgTest.name,
-            description: imgTest.description,
-            imagePath: imgTest.imagePath,
-            forAllPeople: imgTest.forAllPeople,
+
+    try {
+      // 4. Записываем обновленные данные в базу
+      const updateResult = await this.imegs
+        .findOneAndUpdate(
+          { _id: imgId, ownerId: ownerIdObjID },
+          {
+            $set: {
+              name: finalName,
+              description: description ?? imgFind.description,
+              imagePath: newImagePaths,
+              forAllPeople: forAllPeople ?? imgFind.forAllPeople,
+            },
           },
-        },
-        {
-          new: true,
-        },
-      )
-      .lean()
-      .exec();
-    if (!updateImg) {
-      throw new UnauthorizedException('что то пошло не так');
+          { new: true },
+        )
+        .lean()
+        .exec();
+
+      if (!updateResult) {
+        throw new Error('Документ не был обновлен в MongoDB');
+      }
+
+      if (filesWereSaved && imgFind.imagePath && imgFind.imagePath.length > 0) {
+        imgFind.imagePath.forEach((path) => {
+          try {
+            this.photo.deleteIMG(path);
+          } catch (e) {
+            console.error(
+              `Предупреждение: Не удалось удалить старый файл при успешном апдейте: ${path}`,
+              e,
+            );
+          }
+        });
+        if (oldName !== finalName) {
+          this.photo.deletePostDir(ownerId, 'userPostPhoto', oldName);
+        }
+      }
+
+      return true;
+    } catch {
+      if (filesWereSaved && newImagePaths && newImagePaths.length > 0) {
+        newImagePaths.forEach((path) => {
+          try {
+            this.photo.deleteIMG(path);
+          } catch (e) {
+            console.error(
+              `Не удалось откатить новые файлы при упавшем апдейте: ${path}`,
+              e,
+            );
+          }
+        });
+        this.photo.deletePostDir(ownerId, 'userPostPhoto', finalName);
+      }
+
+      throw new InternalServerErrorException(
+        'Ошибка при обновлении данных в БД. Изменения на диске откатаны.',
+      );
     }
-    return true;
   }
 
-  async dellImg(userId: string, imgId: string) {
-    const onerIdObjID = new Types.ObjectId(userId);
+  async deleteImg(userId: string, imgId: string) {
+    const ownerIdObjID = new Types.ObjectId(userId);
     const imgIdObjID = new Types.ObjectId(imgId);
-    const imgTest = await this.imegs
+    const imgFind = await this.imegs
       .findOne({
         _id: imgIdObjID,
-        onerId: onerIdObjID,
+        ownerId: ownerIdObjID,
       })
       .lean()
       .exec();
-    if (!imgTest) {
+    if (!imgFind) {
       throw new NotFoundException('IMG не найден');
     }
     const dell = await this.imegs
       .deleteOne({
-        _id: imgTest._id,
-        onerId: onerIdObjID,
+        _id: imgFind._id,
+        ownerId: ownerIdObjID,
       })
       .lean()
       .exec();
 
     if (dell) {
-      this.photo.deleteIMG(imgTest.imagePath);
+      this.photo.deletePostDir(userId, 'userPostPhoto', imgFind.name);
     } else {
       throw new UnauthorizedException('что то пошло не так');
     }
@@ -185,16 +236,16 @@ export class ImegsService {
     return true;
   }
 
-  async dellImegs(dellImegDto: DellImegDto): Promise<boolean> {
-    if (!dellImegDto || dellImegDto._id.length === 0) {
+  async deleteImgs(deleteImgsDto: DeleteImgsDto): Promise<boolean> {
+    if (!deleteImgsDto || deleteImgsDto._id.length === 0) {
       return false;
     }
-    const imgIdObjID = new Types.ObjectId(dellImegDto.onerId);
-    const searchConditions = dellImegDto._id.map((item) => ({
+    const imgIdObjID = new Types.ObjectId(deleteImgsDto.ownerId);
+    const searchConditions = deleteImgsDto._id.map((item) => ({
       _id: new Types.ObjectId(item),
     }));
     const resDellList = await this.imegs
-      .find({ $or: searchConditions, onerId: imgIdObjID })
+      .find({ $or: searchConditions, ownerId: imgIdObjID })
       .lean()
       .exec();
     if (!resDellList || resDellList.length === 0) {
@@ -208,8 +259,17 @@ export class ImegsService {
     });
     if (deleteResult.deletedCount > 0) {
       for (const res of resDellList) {
-        if (res.imagePath) {
-          this.photo.deleteIMG(res.imagePath);
+        if (res.imagePath && Array.isArray(res.imagePath)) {
+          res.imagePath.forEach((pathStr) => {
+            this.photo.deleteIMG(pathStr);
+          });
+        }
+        if (res.name) {
+          this.photo.deletePostDir(
+            deleteImgsDto.ownerId,
+            'userPostPhoto',
+            res.name,
+          );
         }
       }
     }
@@ -226,7 +286,7 @@ export class ImegsService {
     const imgsRes = await Promise.all(
       img.map(async (res) => {
         const user = await this.users
-          .findOne({ _id: res.onerId })
+          .findOne({ _id: res.ownerId })
           .lean()
           .exec();
         return {

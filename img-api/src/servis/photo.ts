@@ -4,26 +4,61 @@ import * as fs from 'fs';
 
 @Injectable()
 export class PhotoServis {
-  saveIMG(OwnerId: string, src: string, file: Express.Multer.File): string {
-    const uploadDir = path.join(process.cwd(), 'files', src, OwnerId);
+  saveIMG(
+    OwnerId: string,
+    src: string,
+    files: Express.Multer.File[],
+    name: string,
+  ): string[] {
+    if (!files || files.length === 0) return [];
+    const savedPaths: string[] = [];
+
+    const uploadDir = path.join(process.cwd(), 'files', src, OwnerId, name);
+
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
-    const filePath = path.join(uploadDir, file.originalname);
-    if (fs.existsSync(filePath)) {
-      throw new BadRequestException(
-        `Файл с именем "${file.originalname}" уже существует в этой категории!`,
-      );
-    }
-    fs.writeFileSync(filePath, file.buffer);
-    return `files/${src}/${OwnerId}/${file.originalname}`;
+
+    files.forEach((file) => {
+      const ext = path.extname(file.originalname);
+      const baseName = path.basename(file.originalname, ext);
+
+      const newFileName = `${baseName}${ext}`;
+      const filePath = path.join(uploadDir, newFileName);
+
+      if (fs.existsSync(filePath)) {
+        throw new BadRequestException(
+          `Файл с именем "${newFileName}" уже существует!`,
+        );
+      }
+
+      fs.writeFileSync(filePath, file.buffer);
+      savedPaths.push(`files/${src}/${OwnerId}/${name}/${newFileName}`);
+    });
+
+    return savedPaths;
   }
-  getAbsoluteFilePath(src: string): string | null {
-    const filePath = path.join(process.cwd(), src);
-    if (!fs.existsSync(filePath)) {
-      return null;
+
+  renamePostDir(
+    OwnerId: string,
+    src: string,
+    oldName: string,
+    newName: string,
+    imagePaths: string[],
+  ): string[] {
+    const oldDir = path.join(process.cwd(), 'files', src, OwnerId, oldName);
+    const newDir = path.join(process.cwd(), 'files', src, OwnerId, newName);
+
+    if (fs.existsSync(oldDir) && oldName !== newName) {
+      fs.renameSync(oldDir, newDir);
     }
-    return filePath;
+
+    return imagePaths.map((oldPath) => {
+      return oldPath.replace(
+        `files/${src}/${OwnerId}/${oldName}`,
+        `files/${src}/${OwnerId}/${newName}`,
+      );
+    });
   }
 
   deleteIMG(relativeSrc: string): void {
@@ -33,25 +68,10 @@ export class PhotoServis {
     }
   }
 
-  renameIMG(oldRelativeSrc: string, newFileNameWithoutExt: string): string {
-    const oldAbsolutePath = path.join(process.cwd(), oldRelativeSrc);
-
-    if (!fs.existsSync(oldAbsolutePath)) {
-      return oldRelativeSrc; // Если файла физически нет, возвращаем старый относительный путь
+  deletePostDir(OwnerId: string, src: string, name: string): void {
+    const absolutePath = path.join(process.cwd(), 'files', src, OwnerId, name);
+    if (fs.existsSync(absolutePath)) {
+      fs.rmSync(absolutePath, { recursive: true, force: true });
     }
-
-    const fileDir = path.dirname(oldAbsolutePath);
-    const fileExt = path.extname(oldAbsolutePath); // Получаем расширение (например, .jpg)
-    const newAbsoluteName = path.join(
-      fileDir,
-      `${newFileNameWithoutExt}${fileExt}`,
-    );
-
-    // Переименовываем файл на жестком диске
-    fs.renameSync(oldAbsolutePath, newAbsoluteName);
-
-    // Возвращаем новый относительный путь для сохранения в MongoDB
-    const relativeDir = path.dirname(oldRelativeSrc);
-    return `${relativeDir}/${newFileNameWithoutExt}${fileExt}`;
   }
 }

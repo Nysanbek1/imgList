@@ -1,13 +1,53 @@
+// ==========================================
+// ПЕРЕМЕННЫЕ И НАСТРОЙКИ
+// ==========================================
 $bg-main: #f8fafc;
 $bg-card: #ffffff;
 $text-dark: #0f172a;
 $text-muted: #64748b;
 $primary: #4f46e5;
 $primary-hover: #4338ca;
+$danger: #ef4444;
+$danger-hover: #dc2626;
+$success: #10b981;
+$success-hover: #059669;
 $border-color: #e2e8f0;
 $radius: 16px;
 $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
+$shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+// Шаблон базовой кнопки для modal-actions и gallery-section
+%base-button {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: $transition;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    background-color: #cbd5e1;
+    color: #94a3b8;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+}
+
+// ==========================================
+// КОРНЕВОЙ ЛЕЙАУТ ДЕШБОРДА
+// ==========================================
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
@@ -20,52 +60,35 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   @media (max-width: 1024px) {
     flex-direction: column-reverse;
     padding: 16px;
+    gap: 24px;
   }
 }
 
+// ==========================================
+// ЛЕВАЯ ЧАСТЬ: ГАЛЕРЕЯ И КАРТОЧКИ
+// ==========================================
 .gallery-section {
   flex: 1;
+
   .info-box {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
     .dell-box {
-        display: flex;
-        gap: 30px;
-        align-items: center;
+      display: flex;
+      gap: 20px;
+      align-items: center;
     }
   }
 
-  .btn-dell-trigger {
-    width: 140px;
-    height: 40px;
-    border-radius: 10px;
-    background-color: rgb(224, 0, 0);; // изумрудно-зеленый
-    color: #ffffff;
-    border: none;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-
-    &:hover:not(:disabled) {
-      background-color: red;
-      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
-    }
-
-    &:active:not(:disabled) {
-      transform: scale(0.98);
-    }
-
-    &:disabled {
-      background-color: #cbd5e1;
-      color: #94a3b8;
-      box-shadow: none;
-      cursor: not-allowed;
-    }
-  }
   .section-title {
     font-size: 24px;
     font-weight: 700;
     color: $text-dark;
-    margin-bottom: 24px;
-    display: flexbox;
+    margin: 0;
+    display: flex;
     align-items: center;
     gap: 8px;
 
@@ -84,19 +107,20 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   align-items: start;
 }
 
+// Стили самого хост-компонента <app-image-card>
 .image-card {
   background: $bg-card;
   border-radius: $radius;
   border: 1px solid $border-color;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   transition: $transition;
   display: flex;
   flex-direction: column;
 
   &:hover {
     transform: translateY(-6px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
 
     .card-image-wrapper img {
       transform: scale(1.05);
@@ -128,9 +152,6 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       border-radius: 20px;
       font-size: 11px;
       font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 4px;
     }
   }
 
@@ -141,7 +162,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     flex-grow: 1;
 
     .card-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 600;
       color: $text-dark;
       margin: 0 0 8px 0;
@@ -151,7 +172,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .card-description {
       font-size: 14px;
       color: $text-muted;
-      margin: 0 0 20px 0;
+      margin: 0 0 16px 0;
       line-height: 1.5;
       display: -webkit-box;
       -webkit-line-clamp: 3;
@@ -173,22 +194,21 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-// Пустая галерея
 .empty-state {
   grid-column: 1 / -1;
   text-align: center;
-  padding: 80px 24px;
+  padding: 60px 24px;
   background: $bg-card;
   border-radius: $radius;
   border: 2px dashed $border-color;
 
-  .empty-icon { font-size: 48px; margin-bottom: 16px; }
-  h3 { font-size: 20px; color: $text-dark; margin-bottom: 8px; }
-  p { color: $text-muted; font-size: 14px; }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  h3 { font-size: 18px; color: $text-dark; margin: 0 0 6px 0; }
+  p { color: $text-muted; font-size: 14px; margin: 0; }
 }
 
 // ==========================================
-// ПРАВАЯ ЧАСТЬ: БОКОВАЯ ПАНЕЛЬ ФОРМЫ
+// ПРАВАЯ ЧАСТЬ: БОКОВАЯ ПАНЕЛЬ С ФОРМОЙ
 // ==========================================
 .upload-sidebar {
   width: 360px;
@@ -204,23 +224,25 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: $bg-card;
     border-radius: $radius;
     border: 1px solid $border-color;
-    padding: 28px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    padding: 24px;
+    box-shadow: $shadow-sm;
 
     h3 { font-size: 20px; color: $text-dark; margin: 0 0 6px 0; }
-    .sidebar-subtitle { font-size: 13px; color: $text-muted; margin: 0 0 24px 0; }
+    .sidebar-subtitle { font-size: 13px; color: $text-muted; margin: 0 0 20px 0; }
   }
 }
 
+// Общие стили для полей ввода (Sidebar & Modal)
 .form-group {
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 
   label {
-    display: block;
     font-size: 13px;
     font-weight: 600;
     color: $text-dark;
-    margin-bottom: 8px;
   }
 
   input[type="text"], textarea {
@@ -244,7 +266,18 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-// Зона кастомного инпута загрузки
+.form-input-edit {
+  font-size: 18px !important;
+  font-weight: 600;
+  border: 2px solid #cbd5e1 !important;
+}
+
+.form-textarea-edit {
+  @extend textarea;
+  resize: vertical;
+  border: 2px solid #cbd5e1 !important;
+}
+
 .file-upload-zone {
   border: 2px dashed $border-color;
   border-radius: 12px;
@@ -258,31 +291,38 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: rgba(79, 70, 229, 0.02);
   }
 
-  &.has-file {
-    border-style: solid;
-  }
+  &.has-file { border-style: solid; }
 
   .upload-placeholder {
-    padding: 32px 16px;
+    padding: 28px 16px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
     text-align: center;
-
     .upload-icon { font-size: 28px; }
     .upload-text { font-size: 13px; color: $text-muted; font-weight: 500; }
   }
 
-  .upload-preview-wrapper {
+  // Обёртка для контейнера превью (Сетка для нескольких фото)
+  .upload-preview-container {
     position: relative;
     width: 100%;
-    height: 180px;
+    padding: 12px;
+    box-sizing: border-box;
 
-    .sidebar-img-preview {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .previews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 8px;
+
+      .sidebar-img-preview-mini {
+        width: 100%;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid $border-color;
+      }
     }
 
     .preview-overlay {
@@ -293,80 +333,130 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       align-items: center;
       justify-content: center;
       opacity: 0;
+      border: none;
       transition: $transition;
+      cursor: pointer;
 
       span {
         color: #fff;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 600;
         background: rgba(0, 0, 0, 0.6);
-        padding: 6px 14px;
+        padding: 6px 12px;
         border-radius: 20px;
       }
     }
 
-    &:hover .preview-overlay {
-      opacity: 1;
-    }
+    &:hover .preview-overlay { opacity: 1; }
   }
 }
 
+// Хэдер-бейджи файлов под драг-зоной
 .file-info-badge {
   display: flex;
   align-items: center;
-  gap: 8px;
   background: #f1f5f9;
   padding: 8px 12px;
   border-radius: 8px;
   margin-top: 10px;
   font-size: 12px;
   color: $text-dark;
+}
 
-  .file-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+// Кастомный переключатель (Кастомный Checkbox / Switch)
+.form-group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  cursor: pointer;
+
+  .toggle-label {
+    font-size: 14px;
+    color: #334155;
+    user-select: none;
+    font-weight: 500;
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+
+    input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+
+      &:checked + .slider {
+        background-color: $success;
+        &:before { transform: translateX(20px); }
+      }
+      &:focus + .slider { box-shadow: 0 0 1px $success; }
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background-color: #cbd5e1;
+      transition: $transition;
+
+      &:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: #ffffff;
+        transition: $transition;
+      }
+
+      &.round { border-radius: 24px; &:before { border-radius: 50%; } }
+    }
   }
 }
 
+// Кнопки отправки и триггеры действий
 .btn-submit {
+  @extend %base-button;
   width: 100%;
-  padding: 14px;
   background: $primary;
   color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: $transition;
-  margin-top: 24px;
   box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
 
   &:hover:not(:disabled) {
     background: $primary-hover;
     box-shadow: 0 6px 14px rgba(79, 70, 229, 0.3);
   }
+}
 
-  &:disabled {
-    background: #cbd5e1;
-    color: #94a3b8;
-    cursor: not-allowed;
-    box-shadow: none;
+// Унифицированная кнопка удаления (Используется и в галерее, и в модалке)
+.btn-dell-trigger {
+  @extend %base-button;
+  background-color: $danger;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+
+  &:hover:not(:disabled) {
+    background-color: $danger-hover;
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
   }
 }
 
-// Добавьте этот блок в конец вашего файла dashboard.scss
-
+// ==========================================
+// МОДАЛЬНОЕ ОКНО ПРОСМОТРА И РЕДАКТИРОВАНИЯ
+// ==========================================
 .modal-overlay {
   position: fixed;
-  inset: 0; // Растягивает на весь экран
-  background-color: rgba(15, 23, 42, 0.6); // темный полупрозрачный фон
-  backdrop-filter: blur(8px); // Эффект размытия заднего плана
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999; // Поверх абсолютно всего на странице
+  z-index: 9999;
   padding: 24px;
   animation: fadeIn 0.2s ease-out;
 }
@@ -375,11 +465,11 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   background: #ffffff;
   width: 100%;
-  max-width: 840px; // Ограничиваем ширину, чтобы оно не занимало весь экран
+  max-width: 880px;
   border-radius: 20px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: $shadow-lg;
   overflow: hidden;
-  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); // Мягкий отскок при появлении
+  animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .modal-close {
@@ -387,106 +477,101 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   top: 16px;
   right: 20px;
   background: rgba(255, 255, 255, 0.8);
-  border: 1px solid #e2e8f0;
+  border: 1px solid $border-color;
   border-radius: 50%;
   width: 36px;
   height: 36px;
-  font-size: 24px;
-  line-height: 1;
+  font-size: 22px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
-  transition: all 0.2s;
+  color: $text-muted;
+  transition: $transition;
   z-index: 10;
 
   &:hover {
     background: #f1f5f9;
-    color: #0f172a;
+    color: $text-dark;
     transform: rotate(90deg);
   }
 }
 
 .modal-body {
   display: grid;
-  grid-template-columns: 1.2fr 1fr; // Разделение: слева фото, справа инфо
-  min-height: 450px;
-  max-height: 80vh; // Чтобы не вылезало за рамки экрана по высоте
+  grid-template-columns: 1.2fr 1fr;
+  min-height: 480px;
+  max-height: 80vh;
 
-  @media (max-width: 680px) {
-    grid-template-columns: 1fr; // На мобилках в одну колонку
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
     max-height: 90vh;
     overflow-y: auto;
   }
 }
 
+// Левая галерейная зона в модальном окне (Вертикальный скролл-лист изображений)
 .modal-image-panel {
   background: #0f172a;
+  padding: 16px;
+  box-sizing: border-box;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  overflow: hidden;
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain; // Картинка не обрежется, а впишется целиком
-    max-height: 80vh;
+  .modal-images-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    max-height: 75vh;
+    padding-right: 4px;
+
+    &::-webkit-scrollbar { width: 6px; }
+    &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+    .modal-gallery-item {
+      width: 100%;
+      height: auto;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
   }
 }
 
+// Правая текстовая и управляющая зона в модалке
 .modal-info-panel {
   padding: 32px;
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  border-left: 1px solid #e2e8f0;
+  border-left: 1px solid $border-color;
 
-  @media (max-width: 680px) {
+  @media (max-width: 768px) {
     border-left: none;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid $border-color;
+    padding: 20px;
   }
 
   .modal-header-info {
-    margin-bottom: 24px;
-
-    h2 {
-      font-size: 24px;
-      font-weight: 700;
-      color: #0f172a;
-      margin: 0 0 4px 0;
-    }
-    .modal-id {
-      font-size: 11px;
-      color: #94a3b8;
-      font-family: monospace;
-    }
+    margin-bottom: 20px;
+    h2 { font-size: 22px; font-weight: 700; color: $text-dark; margin: 0 0 4px 0; }
+    .modal-id { font-size: 11px; color: #94a3b8; font-family: monospace; }
   }
 
   .modal-description-box {
-    flex-grow: 1; // Занимает всё свободное пространство
-    margin-bottom: 24px;
-    overflow-y: auto; // Если описание гигантское, появится скролл внутри блока
+    flex-grow: 1;
+    margin-bottom: 20px;
+    overflow-y: auto;
 
-    h3 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #334155;
-      margin: 0 0 8px 0;
-    }
-    p {
-      font-size: 15px;
-      color: #475569;
-      line-height: 1.6;
-      margin: 0;
-      white-space: pre-wrap; // Сохраняет переносы строк из textarea
-    }
+    h3 { font-size: 14px; font-weight: 600; color: #334155; margin: 0 0 8px 0; }
+    p { font-size: 15px; color: #475569; line-height: 1.6; margin: 0; white-space: pre-wrap; }
   }
 
   .modal-meta-box {
     background: #f8fafc;
-    padding: 16px;
+    padding: 14px;
     border-radius: 12px;
     border: 1px solid #f1f5f9;
     font-size: 13px;
@@ -494,14 +579,13 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .meta-row {
       display: flex;
       justify-content: space-between;
-      color: #64748b;
-
+      color: $text-muted;
       strong { color: #334155; font-weight: 500; }
 
       &.edited {
         margin-top: 8px;
         padding-top: 8px;
-        border-top: 1px dashed #e2e8f0;
+        border-top: 1px dashed $border-color;
         color: #b45309;
         strong { color: #b45309; }
       }
@@ -509,7 +593,33 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
-// Анимации
+// Контейнер управления внутри модального окна
+.modal-actions-box {
+  margin: 20px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  button { @extend %base-button; }
+
+  .btn-edit-trigger {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid $border-color;
+    &:hover { background-color: #e2e8f0; color: $text-dark; }
+  }
+
+  .btn-save-trigger {
+    background-color: $success;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    &:hover:not(:disabled) { background-color: #059669; box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3); }
+  }
+}
+
+// ==========================================
+// АНИМАЦИОННЫЕ КЛЮЧИ
+// ==========================================
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -518,215 +628,4 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 @keyframes scaleUp {
   from { transform: scale(0.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
-}
-
-// Стили для элементов редактирования внутри модального окна
-
-.form-group {
-  margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-}
-
-// Стилизация инпута названия при редактировании
-.form-input-edit {
-  width: 100%;
-  padding: 10px 14px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #0f172a;
-  background-color: #f8fafc;
-  border: 2px solid #cbd5e1;
-  border-radius: 10px;
-  outline: none;
-  transition: all 0.2s ease;
-
-  &:focus {
-    background-color: #ffffff;
-    border-color: #3b82f6; // синий фокус
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-  }
-}
-
-// Стилизация текстового поля описания при редактировании
-.form-textarea-edit {
-  width: 100%;
-  padding: 12px 14px;
-  font-size: 15px;
-  line-height: 1.6;
-  color: #334155;
-  background-color: #f8fafc;
-  border: 2px solid #cbd5e1;
-  border-radius: 10px;
-  outline: none;
-  resize: vertical; // разрешаем менять размер только по вертикали
-  transition: all 0.2s ease;
-
-  &:focus {
-    background-color: #ffffff;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-  }
-}
-
-// Контейнер для кнопок действий
-.modal-actions-box {
-  margin: 20px 0;
-  display: flex;
-  gap: 12px;
-
-  button {
-    font-size: 14px;
-    font-weight: 600;
-    padding: 12px 24px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .btn-edit-trigger {
-    background-color: #f1f5f9;
-    color: #334155;
-    border: 1px solid #e2e8f0;
-
-    &:hover {
-      background-color: #e2e8f0;
-      color: #0f172a;
-    }
-
-    &:active {
-      transform: scale(0.98);
-    }
-  }
-
-  .btn-dell-trigger {
-    background-color: rgb(224, 0, 0);; // изумрудно-зеленый
-    color: #ffffff;
-    border: none;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-
-    &:hover:not(:disabled) {
-      background-color: red;
-      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
-    }
-
-    &:active:not(:disabled) {
-      transform: scale(0.98);
-    }
-
-    // Стиль для заблокированной кнопки (если стерли name)
-    &:disabled {
-      background-color: #cbd5e1;
-      color: #94a3b8;
-      box-shadow: none;
-      cursor: not-allowed;
-    }
-  }
-
-  // Кнопка "💾 Сохранить"
-  .btn-save-trigger {
-    background-color: #10b981; // изумрудно-зеленый
-    color: #ffffff;
-    border: none;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-
-    &:hover:not(:disabled) {
-      background-color: #059669;
-      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3);
-    }
-
-    &:active:not(:disabled) {
-      transform: scale(0.98);
-    }
-
-    // Стиль для заблокированной кнопки (если стерли name)
-    &:disabled {
-      background-color: #cbd5e1;
-      color: #94a3b8;
-      box-shadow: none;
-      cursor: not-allowed;
-    }
-  }
-}
-
-.form-group-toggle {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 20px 0;
-  cursor: pointer;
-}
-
-.toggle-label {
-  font-size: 14px;
-  color: #333;
-  user-select: none;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 24px;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: .3s;
-}
-
-/* Кругляшок внутри */
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: .3s;
-}
-
-input:checked + .slider {
-  background-color: #4caf50;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #4caf50;
-}
-
-input:checked + .slider:before {
-  transform: translateX(20px);
-}
-
-.slider.round {
-  border-radius: 24px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
 }

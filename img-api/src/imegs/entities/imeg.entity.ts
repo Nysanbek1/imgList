@@ -12,13 +12,13 @@ export class Imeg {
   description?: string;
 
   @Prop({ required: true })
-  onerId!: Types.ObjectId;
+  ownerId!: Types.ObjectId;
 
   @Prop({ required: true, default: false })
   forAllPeople!: boolean;
 
-  @Prop({ required: true })
-  imagePath!: string;
+  @Prop({ type: [String], required: true })
+  imagePath!: string[];
 }
 
 export const ImegSchema = SchemaFactory.createForClass(Imeg);

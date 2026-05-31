@@ -5,23 +5,21 @@
         <h2 class="section-title">Ваша галерея <span>({{ allImg.length }})</span></h2>
         @if (action) {
             <div class="dell-box">
-                <button  type="button" class="btn-dell-trigger" (click)="dellImegsAll()">удалить</button>
+                <button type="button" class="btn-dell-trigger" (click)="dellImegsAll()">удалить</button>
                 <h2 class="section-title">Вы выбрали: <span>({{ listId.length }})</span></h2>
             </div>
         }
     </div>
 
-
-
     <div class="gallery-grid">
       @for (element of allImg; track element._id) {
         <app-image-card
-        [imgInfo]="element"
-        [listId]="listId"
-        (cardClick)="openModal($event)"
-        (deleteClick)="loadImages()"
-        (selectAction)="selectAction($event)"
-        (dellSelectAction)="dellSelectAction($event)">
+          [imgInfo]="element"
+          [listId]="listId"
+          (cardClick)="openModal($event)"
+          (deleteClick)="loadImages()"
+          (selectAction)="selectAction($event)"
+          (dellSelectAction)="dellSelectAction($event)">
         </app-image-card>
       } @empty {
         <div class="empty-state">
@@ -49,35 +47,40 @@
           <textarea id="description" formControlName="description" rows="4" placeholder="Добавьте описание деталей..."></textarea>
         </div>
 
-        <div class="file-upload-zone" [class.has-file]="selectedFile">
+        <div class="file-upload-zone" [class.has-file]="selectedFiles.length > 0">
           <input
             type="file"
             #fileInput
             (change)="onFileSelected($event)"
             accept="image/*"
+            multiple
             style="display: none;"
           >
 
-          @if (!imagePreview) {
+          @if (imagePreviews.length === 0) {
             <div class="upload-placeholder" (click)="fileInput.click()">
               <span class="upload-icon">📂</span>
-              <span class="upload-text">Кликните, чтобы выбрать фото</span>
+              <span class="upload-text">Кликните, чтобы выбрать фото (можно несколько)</span>
             </div>
           }
 
-          @if (imagePreview) {
-            <div class="upload-preview-wrapper" (click)="fileInput.click()">
-              <img [src]="imagePreview" alt="Превью" class="sidebar-img-preview">
-              <button class="preview-overlay">
+          @if (imagePreviews.length > 0) {
+            <div class="upload-preview-container" (click)="fileInput.click()">
+              <div class="previews-grid">
+                @for (preview of imagePreviews; track preview) {
+                  <img [src]="preview" alt="Превью" class="sidebar-img-preview-mini">
+                }
+              </div>
+              <button type="button" class="preview-overlay">
                 <span>Изменить фото</span>
               </button>
             </div>
           }
         </div>
 
-        @if (selectedFile) {
+        @if (selectedFiles.length > 0) {
           <div class="file-info-badge">
-            <span class="file-name">{{ selectedFile.name }}</span>
+            <span class="file-name">Выбрано файлов: {{ selectedFiles.length }}</span>
           </div>
         }
 
@@ -89,7 +92,7 @@
           <span class="toggle-label">Всеобщий доступ</span>
         </div>
 
-        <button type="submit" [disabled]="imgForm.invalid || !selectedFile" class="btn-submit">
+        <button type="submit" [disabled]="imgForm.invalid || selectedFiles.length === 0" class="btn-submit">
           <span>Опубликовать на стену</span>
         </button>
       </form>
@@ -104,8 +107,13 @@
             <button type="button" class="modal-close" (click)="closeModal()">&times;</button>
 
             <div class="modal-body">
+
               <div class="modal-image-panel">
-                  <img [src]="selectedCard.imagePath" [alt]="selectedCard.name">
+                <div class="modal-images-gallery">
+                  @for (imgUrl of selectedCard.imagePath; track imgUrl) {
+                    <img [src]="imgUrl" [alt]="selectedCard.name" class="modal-gallery-item">
+                  }
+                </div>
               </div>
 
               <div class="modal-info-panel">
@@ -131,33 +139,40 @@
                         </div>
                       }
                   </div>
+
                   @if (isUpdate) {
-                    <div class="file-upload-zone">
+                    <div class="file-upload-zone" [class.has-file]="updateFiles.length > 0">
                         <input
                             type="file"
-                            #fileInput
+                            #fileUpdateInput
                             (change)="onFileUpdate($event)"
                             accept="image/*"
+                            multiple
                             style="display: none;"
                         >
 
-                        @if (!updateImagePreview) {
-                            <div class="upload-placeholder" (click)="fileInput.click()">
-                            <span class="upload-icon">📂</span>
-                            <span class="upload-text">Кликните, чтобы выбрать фото</span>
+                        @if (updateImagePreviews.length === 0) {
+                            <div class="upload-placeholder" (click)="fileUpdateInput.click()">
+                              <span class="upload-icon">📂</span>
+                              <span class="upload-text">Кликните, чтобы заменить фото (можно несколько)</span>
                             </div>
                         }
 
-                        @if (updateImagePreview) {
-                            <div class="upload-preview-wrapper" (click)="fileInput.click()">
-                            <img [src]="updateImagePreview" alt="Превью" class="sidebar-img-preview">
-                            <div class="preview-overlay">
-                                <span>Изменить фото</span>
-                            </div>
+                        @if (updateImagePreviews.length > 0) {
+                            <div class="upload-preview-container" (click)="fileUpdateInput.click()">
+                              <div class="previews-grid">
+                                @for (preview of updateImagePreviews; track preview) {
+                                  <img [src]="preview" alt="Превью" class="sidebar-img-preview-mini">
+                                }
+                              </div>
+                              <div class="preview-overlay">
+                                  <span>Изменить фото</span>
+                              </div>
                             </div>
                         }
                     </div>
                   }
+
                   @if (isUpdate) {
                     <div class="form-group-toggle">
                       <label class="switch">
@@ -167,10 +182,11 @@
                       <span class="toggle-label">Всеобщий доступ</span>
                     </div>
                   }
+
                   <div class="modal-actions-box">
-                    <button type="button" class="btn-edit-trigger" (click)="downloadSelectedFromModal()">Скачать файл</button>
+                    <button type="button" class="btn-edit-trigger" (click)="downloadSelectedFromModal()">Скачать файлы</button>
                     @if (!isUpdate) {
-                      <button type="button" class="btn-edit-trigger" (click)="openUpdateStart()">Изменить текст</button>
+                      <button type="button" class="btn-edit-trigger" (click)="openUpdateStart()">Изменить пост</button>
                     } @else {
                       <button type="button" class="btn-dell-trigger" (click)="dellImg()">удалить</button>
                       <button type="button" class="btn-save-trigger" [disabled]="updateImgForm.invalid" (click)="saveUpdate()">Сохранить</button>
@@ -197,5 +213,4 @@
       </form>
     </div>
   }
-
 </div>

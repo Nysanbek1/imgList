@@ -3,62 +3,62 @@ import {
   Post,
   Body,
   UseInterceptors,
-  UploadedFile,
   UseGuards,
   Get,
   Param,
   Put,
   Delete,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ImegsService } from './imegs.service';
 import { CreateImegDto } from './dto/create-imeg.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from 'src/jwt/jwt-auth.guard';
 import { UpdateImegDto } from './dto/update-imeg.dto';
-import { DellImegDto } from './dto/dell-imegs.dto';
+import { DeleteImgsDto } from './dto/dell-imegs.dto';
 
 @Controller('imegs')
-//@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class ImegsController {
   constructor(private readonly imegsService: ImegsService) {}
 
-  @Post('createPostImg')
-  @UseInterceptors(FileInterceptor('file'))
+  @Post('image-items-create')
+  @UseInterceptors(FilesInterceptor('file'))
   create(
     @Body() createImegDto: CreateImegDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() file: Express.Multer.File[],
   ) {
     console.log(createImegDto);
     return this.imegsService.create(createImegDto, file);
   }
 
-  @Get('getAllUserImgs/:userId')
+  @Get('image-items-all/:userId')
   getAllUserImgs(@Param('userId') userId: string) {
     return this.imegsService.getAllUserImgs(userId);
   }
 
-  @Get('getBiId/:userId/:imgId')
-  getBiId(@Param('userId') userId: string, @Param('imgId') imgId: string) {
-    return this.imegsService.getBiId(userId, imgId);
+  @Get('image-items/:imgId/download')
+  downloadFile(@Param('imgId') imgId: string) {
+    return this.imegsService.downloadFile(imgId);
   }
 
-  @Put('updateImg')
-  @UseInterceptors(FileInterceptor('file'))
+  @Put('image-items-update')
+  @UseInterceptors(FilesInterceptor('image', 10))
   updateImg(
     @Body() updateImeg: UpdateImegDto,
-    @UploadedFile() file?: Express.Multer.File,
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    return this.imegsService.updateImg(updateImeg, file);
+    return this.imegsService.updateImg(updateImeg, files);
   }
 
-  @Delete('delleteImgUser/:userId/:imgId')
-  dellImg(@Param('userId') userId: string, @Param('imgId') imgId: string) {
-    return this.imegsService.dellImg(userId, imgId);
+  @Delete('image-items-dell-one/:userId/:imgId')
+  deleteImg(@Param('userId') userId: string, @Param('imgId') imgId: string) {
+    return this.imegsService.deleteImg(userId, imgId);
   }
 
-  @Post('dellImegs')
-  dellImegs(@Body() dellImegDto: DellImegDto) {
-    return this.imegsService.dellImegs(dellImegDto);
+  @Post('image-items-dell-list')
+  deleteImgs(@Body() dellImegDto: DeleteImgsDto) {
+    return this.imegsService.deleteImgs(dellImegDto);
   }
 
   @Get('allOpenImg/:skip')
